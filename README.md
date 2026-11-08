@@ -54,4 +54,7 @@ bash scripts/patch-dshgo.sh
 
 ## 许可
 
-个人自用工具，按原样提供。
+[MIT](LICENSE) © 2026 ESxyzbil
+
+注意：本仓库**不包含** dsh-Go 本体（AGPL-3.0）的任何代码，补丁脚本只修改清单并由你在本地重签；
+请勿发行基于 dsh-Go 的修改版 APK，除非遵守其 AGPL-3.0 条款。
