@@ -1,0 +1,31 @@
+# 构建产物
+lspmod/build/
+lspmod/out/
+lspmod/dex/
+build-patch/
+
+# 大文件 / 第三方
+*.apk
+apktool.jar
+
+# 签名材料（不要提交）
+*.jks
+*.keystore
+
+# 本地日志与临时文件
+*.log
+*.txt.bak
+sources.txt
+classes.txt
+patch.log
+javac.log
+
+# 截图
+*.png
+*.jpg
+
+# 反编译中间产物
+dex_dump.txt
+manifest.txt
+apkx/
+dshgo_out/

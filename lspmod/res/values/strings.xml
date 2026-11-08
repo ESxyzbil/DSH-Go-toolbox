@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="a11y_desc">用于在 DSH Go 原生界面上按名称找到语音/发送按钮并点击，不需要屏幕坐标。</string>
+</resources>
