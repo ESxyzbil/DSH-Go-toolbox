@@ -136,6 +136,34 @@ public class MainActivity extends Activity {
         });
         addWithTop(act, t5, 10);
 
+        Button t8 = pill("学习按键（按下目标键）", SOFT, PRIMARY);
+        t8.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                toast("请按一下目标按键…（10 秒内）");
+                new Thread(new Runnable() {
+                    public void run() {
+                        final String r = PttService.learnKey();
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                if (r == null) {
+                                    toast("没抓到按键，再试一次");
+                                    return;
+                                }
+                                String[] kv = r.split("\\|");
+                                getSharedPreferences("ptt", MODE_PRIVATE).edit()
+                                        .putString("keyDev", kv[0])
+                                        .putString("keyName", kv.length > 1 ? kv[1] : "BTN_TRIGGER_HAPPY32")
+                                        .apply();
+                                PttService.runRoot("pkill -9 -f 'ptt_loo[p]'");
+                                toast("已学会：" + kv[kv.length - 1]);
+                            }
+                        });
+                    }
+                }).start();
+            }
+        });
+        addWithTop(act, t8, 10);
+
         Button t7 = pill("重启 DSH 无障碍（root）", SOFT, PRIMARY);
         t7.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {

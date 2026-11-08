@@ -29,3 +29,8 @@ dex_dump.txt
 manifest.txt
 apkx/
 dshgo_out/
+
+# 与本项目无关的材料
+mv/
+*.mp4
+*.exe

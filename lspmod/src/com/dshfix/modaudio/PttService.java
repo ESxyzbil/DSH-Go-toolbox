@@ -53,6 +53,8 @@ public class PttService extends Service {
             getSharedPreferences("ptt", MODE_PRIVATE).edit().putBoolean("running", true).apply();
             ensureA11y();
             ensureOverlayPerm();
+            syncKeyConf(this);
+            runRoot("pkill -9 -f 'ptt_loo[p]'");
             new Thread(new Runnable() {
                 public void run() { watch(); }
             }, "ptt-guard").start();
@@ -95,6 +97,8 @@ public class PttService extends Service {
             if (alive != null && alive.contains("yes")) return;
             String p = scriptPath();
             if (p == null) return;
+            syncKeyConf(this);
+            runRoot("pkill -9 -f 'ptt_loo[p]'");
             Log.i(TAG, "ptt: starting key listener");
             runRoot("setsid sh " + p + " </dev/null >/dev/null 2>&1 &");
         } catch (Throwable t) {
@@ -133,6 +137,41 @@ public class PttService extends Service {
     static void ensureOverlayPerm() {
         String out = runRoot("appops set com.dshfix.modaudio SYSTEM_ALERT_WINDOW allow");
         Log.i(TAG, "overlay perm: " + out);
+    }
+
+
+    /** 学习：让用户按一下目标按键，抓取事件设备与键名 */
+    static String learnKey() {
+        String out = runRoot("timeout 12 getevent -l 2>/dev/null | grep -m1 -E ' (BTN|KEY)_'");
+        if (out == null || out.trim().isEmpty()) return null;
+        String line = out.trim();
+        String dev = "/dev/input/event0";
+        int c = line.indexOf(':');
+        if (c > 0) {
+            String d = line.substring(0, c).trim();
+            if (d.startsWith("/dev/input/")) dev = d;
+            line = line.substring(c + 1).trim();
+        }
+        String[] tk = line.split("\\s+");
+        String name = null;
+        for (String t : tk) {
+            if (t.startsWith("BTN_") || t.startsWith("KEY_")) { name = t; break; }
+        }
+        if (name == null) return null;
+        writeKeyConf(dev, name);
+        return dev + "|" + name;
+    }
+
+    /** 把按键配置写到 /data/local/tmp/ptt_key.conf */
+    static void writeKeyConf(String dev, String name) {
+        runRoot("printf 'DEV=%s\\nNAME=%s\\n' " + dev + " " + name + " > /data/local/tmp/ptt_key.conf");
+    }
+
+    /** 从 prefs 恢复配置（若文件不存在则按默认写一份） */
+    static void syncKeyConf(android.content.Context c) {
+        android.content.SharedPreferences sp = c.getSharedPreferences("ptt", android.content.Context.MODE_PRIVATE);
+        writeKeyConf(sp.getString("keyDev", "/dev/input/event0"),
+                sp.getString("keyName", "BTN_TRIGGER_HAPPY32"));
     }
 
     /** 用 root 先关再开 dsh-Go 的无障碍服务（等价于重启它） */
